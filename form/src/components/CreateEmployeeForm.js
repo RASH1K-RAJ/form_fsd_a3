@@ -1,45 +1,36 @@
 import React from 'react';
 import useForm from '../services/useForm';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, Table } from 'react-bootstrap';
+import createEmployeeFormValidation from '../services/createEmployeeFormValidation';
 
 
 const CreateEmployeeForm = () => {
-    
-    //Callback
-    function saveEmployeeData() {
-        alert(JSON.stringify(values, null, 2));
-    }
-
-    //Validation
-    function validate(values) {
-        let errors = {};
-        if (!values.email) {
-            errors.email = 'Email address is required';
-        } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-            errors.email = 'Email address is invalid';
-        }
-        if (!values.password) {
-            errors.password = 'Password is required';
-        } else if (values.password.length < 8) {
-            errors.password = 'Password must be 8 or more characters';
-        }
-        return errors;
-    };
 
     const {
-        values,
-        errors,
         handleChange,
         handleSubmit,
-    } = useForm(saveEmployeeData, validate);
+        values,
+        skillList,
+        errors,
+        addSkill,
+        addSkillButtonDisabled,
+        handleSkillChange,
+        skillValues,
+        skillErrors
+    } = useForm(saveEmployeeData, createEmployeeFormValidation);
+
+    //Callback
+    function saveEmployeeData() {
+        alert(JSON.stringify({...values, skills: [...skillList]}, null, 2));
+    }
 
     return (
         <div className="formContainer">
             <h1>Create Employee</h1>
-            <Form noValidate>
+            <Form noValidate onSubmit={handleSubmit}>
                 <Row>
                     <Col>
-                    <Form.Label>Full Name</Form.Label>
+                    <Form.Label as="Legend">Full Name</Form.Label>
                     </Col>
                     <Col>
                         <Form.Control
@@ -49,13 +40,13 @@ const CreateEmployeeForm = () => {
                         value={values.fullname || ''}
                         onChange={handleChange}
                         />
-                        {errors && errors.fullName && <p> Full name format: fullname latname</p>}
+                        {errors?.fullname && <p>{errors.fullname}</p>}
                     </Col>
                 </Row>
 
                 <Row>
                     <Col>
-                        <Form.Label>Email</Form.Label>
+                        <Form.Label as="Legend">Email</Form.Label>
                     </Col>
                     <Col>
                         <Form.Control
@@ -65,13 +56,43 @@ const CreateEmployeeForm = () => {
                         value={values.email || ''}
                         onChange={handleChange}
                         />
-                        {errors && errors.email && <p> Email format: firstname.latname@gmail.com </p>}
+                        {errors?.email && <p>{errors.email} </p>}
                     </Col>
                 </Row>
-                
                 <Row>
                     <Col>
-                        <Form.Label >Proficiency</Form.Label>
+                        <Button type="button" onClick={addSkill} disabled={addSkillButtonDisabled}>Add Skill</Button>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Form.Label as="Legend" >Skill</Form.Label>
+                    </Col>
+                    <Col>
+                        <Form.Control 
+                        type="text"
+                        placeholder="name"
+                        name="skillName"
+                        value={skillValues.skillName || ''}
+                        onChange={handleSkillChange}
+                        />
+                        {skillErrors.skillName && <p>{skillErrors.skillName} </p>}
+                    </Col>
+                    <Col>
+                        <Form.Control 
+                        type="text"
+                        placeholder="years"
+                        name="skillYears"
+                        value={skillValues.skillYears || ''}
+                        onChange={handleSkillChange}
+                        />
+                        {skillErrors.skillYears && <p>{skillErrors.skillYears} </p>}
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col>
+                        <Form.Label as="Legend">Proficiency</Form.Label>
                     </Col>
                     <Col>
                         <div as={Col} key={`inline-radio`} className="mb-3">
@@ -102,13 +123,36 @@ const CreateEmployeeForm = () => {
                                 id={`inline-radio-advanced`}
                                 onChange={handleChange}
                             />
+                            {errors?.proficiency && <p>{errors.proficiency} </p>}
                         </div>
                     </Col>
                 </Row>
                 <Row>
-                    <Button type="button" onClick={()=>alert(JSON.stringify(values, null, 2))} className="employee_submit_button">Save</Button>
+                    <Button type="submit"  className="employee_submit_button">Save</Button>
                 </Row>
             </Form>
+            { skillList.length !== 0 &&
+            <Table stripped bordered hover variant>
+            <thead>
+                <tr>
+                <th>Skill Name</th>
+                <th>Years</th>
+                </tr>
+            </thead>
+            <tbody>
+                {   
+                    skillList.map((skill)=>{
+                        return(
+                            <tr>
+                                <td>{skill.name}</td>
+                                <td>{skill.years}</td>
+                            </tr>
+                        )
+                    })
+                }
+            </tbody>
+            </Table>
+            }
         </div>
     )
 }
