@@ -21,7 +21,23 @@ const CreateEmployeeForm = () => {
 
     //Callback
     function saveEmployeeData() {
-        alert(JSON.stringify({...values, skills: [...skillList]}, null, 2));
+
+        // Check if 'employee' exists in localStorage
+        let employees = JSON.parse(localStorage.getItem('employees'));
+
+        // If 'employ' doesn't exist or is null, create a new array and add the employee
+        if (!employees) {
+            employees = [{...values, skills: [...skillList]}];
+        } else {
+            // If 'employ' exists, add the employee to the existing array
+            employees.push({...values, skills: [...skillList]});
+        }
+
+        // Save the updated employees array to localStorage
+        localStorage.setItem('employees', JSON.stringify(employees));
+
+        //clearing fields
+        window.location.reload();
     }
 
     return (
